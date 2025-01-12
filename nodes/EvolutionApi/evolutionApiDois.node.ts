@@ -11,7 +11,7 @@ import { resourceOperationsFunctions } from './execute';
 export class EvolutionApiV2 implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Evolution API v2',
-		name: 'evolutionApiV2',
+		name: 'evolutionApiDois',
 		icon: 'file:evolutionapi.svg',
 		group: ['transform'],
 		version: 1,

@@ -10,15 +10,15 @@ import { resourceOperationsFunctions } from './execute';
 
 export class EvolutionApi implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Evolution API',
-		name: 'evolutionApi',
+		displayName: 'Evolution API v2',
+		name: 'evolutionApiV2',
 		icon: 'file:evolutionapi.svg',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
-		description: 'Interact with Evolution API',
+		description: 'Interact with Evolution API v2',
 		defaults: {
-			name: 'Evolution API',
+			name: 'Evolution API v2',
 		},
 		inputs: ['main'],
 		outputs: ['main'],

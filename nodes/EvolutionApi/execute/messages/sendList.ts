@@ -211,7 +211,6 @@ export async function sendList(this: IExecuteFunctions) {
 		return this.prepareOutputData(
 			this.getInputData().map(() => ({
 				json: errorData,
-				error: errorData,
 			}))
 		);
 	}

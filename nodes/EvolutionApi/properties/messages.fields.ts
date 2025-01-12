@@ -242,35 +242,7 @@ export const messagesFields: INodeProperties[] = [
 					},
 				},
 			},
-			{
-				displayName: 'Responder Mensagem',
-				name: 'quoted',
-				type: 'fixedCollection',
-				typeOptions: {
-					multipleValues: false,
-				},
-				default: {
-					messageQuoted: {
-						messageId: '',
-					},
-				},
-				options: [
-					{
-						name: 'messageQuoted',
-						displayName: 'Mensagem',
-						values: [
-							{
-								displayName: 'ID Da Mensagem',
-								name: 'messageId',
-								type: 'string',
-								default: '',
-								description: 'ID da mensagem que será respondida',
-							},
-						],
-					},
-				],
-			},
-			{
+						{
 				displayName: 'Menções',
 				name: 'mentions',
 				type: 'fixedCollection',
@@ -306,6 +278,34 @@ export const messagesFields: INodeProperties[] = [
 									},
 								},
 								description: 'Lista de números para mencionar (separados por vírgula)',
+							},
+						],
+					},
+				],
+			},
+			{
+				displayName: 'Responder Mensagem',
+				name: 'quoted',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: false,
+				},
+				default: {
+					messageQuoted: {
+						messageId: '',
+					},
+				},
+				options: [
+					{
+						name: 'messageQuoted',
+						displayName: 'Mensagem',
+						values: [
+							{
+								displayName: 'ID Da Mensagem',
+								name: 'messageId',
+								type: 'string',
+								default: '',
+								description: 'ID da mensagem que será respondida',
 							},
 						],
 					},

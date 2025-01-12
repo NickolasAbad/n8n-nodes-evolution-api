@@ -14,6 +14,8 @@ export async function sendList(ef: IExecuteFunctions) {
 		const title = ef.getNodeParameter('title', 0);
 		const description = ef.getNodeParameter('description', 0);
 		const buttonText = ef.getNodeParameter('buttonText', 0);
+		const enableAutoRows = this.getNodeParameter('enableAutoRows', 0, false) as boolean;
+		const dynamicSectionTitle = this.getNodeParameter('dynamicSectionTitle', 0, '') as string;
 		const sections = ef.getNodeParameter('sections.sectionValues', 0) as {
 			title: string;
 			rows: {

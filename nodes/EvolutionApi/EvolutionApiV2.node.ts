@@ -8,7 +8,7 @@ import {
 import { evolutionNodeProperties } from './properties';
 import { resourceOperationsFunctions } from './execute';
 
-export class EvolutionApiV2 implements INodeType {
+export class EvolutionApi implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Evolution API v2',
 		name: 'evolutionApiV2',
@@ -24,7 +24,7 @@ export class EvolutionApiV2 implements INodeType {
 		outputs: ['main'],
 		credentials: [
 			{
-				name: 'evolutionApiV2',
+				name: 'evolutionApi',
 				required: true,
 			},
 		],

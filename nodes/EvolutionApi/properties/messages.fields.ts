@@ -234,7 +234,7 @@ export const messagesFields: INodeProperties[] = [
 				name: 'enableAutoRows',
 				type: 'boolean',
 				default: false,
-				description: 'Whether Gera linhas automaticamente a partir dos items de entrada do n8n, ignorando as seções manuais',
+				description: 'Whether to automatically generate lines from the n8n input items, ignoring manual sections',
 				displayOptions: {
 					show: {
 						resource: ['messages-api'],

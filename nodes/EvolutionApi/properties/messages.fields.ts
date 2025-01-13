@@ -1399,6 +1399,19 @@ export const messagesFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Linhas Automáticas?',
+				name: 'enableAutoRows',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to automatically generate lines from all input items (one message with multiple rows)',
+				displayOptions: {
+					show: {
+						resource: ['messages-api'],
+						operation: ['send-list'],
+					},
+				},
+			},
+			{
 				name: 'sectionValues',
 				displayName: 'Seção',
 				values: [
@@ -1537,19 +1550,6 @@ export const messagesFields: INodeProperties[] = [
 				type: 'number',
 				default: 1200,
 				description: 'Digite quantos milisegundos de delay a mensagem terá antes de ser enviada',
-			},
-			{
-				displayName: 'Linhas Automáticas?',
-				name: 'enableAutoRows',
-				type: 'boolean',
-				default: false,
-				description: 'Whether to automatically generate lines from all input items (one message with multiple rows)',
-				displayOptions: {
-					show: {
-						resource: ['messages-api'],
-						operation: ['send-list'],
-					},
-				},
 			},
 			{
 				displayName: 'Menções',

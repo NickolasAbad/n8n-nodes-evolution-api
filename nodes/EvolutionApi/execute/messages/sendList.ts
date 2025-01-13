@@ -78,7 +78,7 @@ export async function sendList(ef: IExecuteFunctions) {
 
 			finalSections = [
 				{
-					title: sectionTitle
+					title: sectionTitle,
 					rows,
 				},
 			];

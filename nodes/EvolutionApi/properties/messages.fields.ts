@@ -1526,13 +1526,6 @@ export const messagesFields: INodeProperties[] = [
 	                  default: '',
 	                  description: 'Aceita Expressões"',
 	                },
-	                {
-	                  displayName: 'ID Da Linha',
-	                  name: 'rowIdExp',
-	                  type: 'string',
-	                  default: '',
-	                  description: 'Aceita Expressões',
-	                },
 	              ],
 	            },
 	          ],

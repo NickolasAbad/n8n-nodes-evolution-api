@@ -1389,33 +1389,6 @@ export const messagesFields: INodeProperties[] = [
 		},
 	},
 	{
-    displayName: 'Título Da Seção (Automática)',
-    name: 'dynamicSectionTitle',
-    type: 'string',
-    default: '',
-    description: 'Título da seção quando a criação automática de linhas estiver habilitada',
-    displayOptions: {
-      show: {
-        resource: ['messages-api'],
-        operation: ['send-list'],
-        enableAutoRows: [true],
-      },
-    },
-  },
-	{
-    displayName: 'Linhas Automáticas?',
-    name: 'enableAutoRows',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to activate automatic mode - Gera linhas automaticamente a partir dos items de entrada do n8n, ignorando as seções manuais',
-    displayOptions: {
-      show: {
-        resource: ['messages-api'],
-        operation: ['send-list'],
-      },
-    },
-  },
-	{
 		displayName: 'Seções',
 		name: 'sections',
 		placeholder: 'Adicionar Seção',
@@ -1434,7 +1407,6 @@ export const messagesFields: INodeProperties[] = [
 						name: 'title',
 						type: 'string',
 						default: '',
-
 					},
 					{
 						displayName: 'Linhas',
@@ -1450,12 +1422,53 @@ export const messagesFields: INodeProperties[] = [
 								displayName: 'Linha',
 								values: [
 									{
+										displayName: 'Título da Linha',
+										name: 'rowTitleExp',
+										type: 'string',
+										default: '{{ $json.nome_produto }}',
+										description: 'Use expressões do n8n. Ex: "Produto: {{ $json.nome_produto }}"',
+										displayOptions: {
+											show: {
+												enableAutoRows: [true],
+											},
+										},
+									},
+									{
+										displayName: 'Descrição da Linha',
+										name: 'rowDescriptionExp',
+										type: 'string',
+										default: '{{ $json.descricao }}\n{{ $json.condicao }}',
+										description: 'Use expressões do n8n para compor a descrição. Ex: "{{ $json.descricao }}\\n{{ $json.condicao }}"',
+										displayOptions: {
+											show: {
+												enableAutoRows: [true],
+											},
+										},
+									},
+									{
+										displayName: 'ID da Linha',
+										name: 'rowIdExp',
+										type: 'string',
+										default: '{{ $json.codigoProduto }}',
+										description: 'Use expressões do n8n. Ex: "{{ $json.codigoProduto }}"',
+										displayOptions: {
+											show: {
+												enableAutoRows: [true],
+											},
+										},
+									},
+									{
 										displayName: 'Título',
 										name: 'title',
 										type: 'string',
 										default: '',
 										required: true,
 										description: 'Título da linha',
+										displayOptions: {
+											show: {
+												enableAutoRows: [false],
+											},
+										},
 									},
 									{
 										displayName: 'Descrição',
@@ -1463,6 +1476,11 @@ export const messagesFields: INodeProperties[] = [
 										type: 'string',
 										default: '',
 										description: 'Descrição da linha (Opcional)',
+										displayOptions: {
+											show: {
+												enableAutoRows: [false],
+											},
+										},
 									},
 									{
 										displayName: 'ID Da Linha',
@@ -1470,6 +1488,11 @@ export const messagesFields: INodeProperties[] = [
 										type: 'string',
 										default: '',
 										description: 'ID único da opção',
+										displayOptions: {
+											show: {
+												enableAutoRows: [false],
+											},
+										},
 									}
 								]
 							}
@@ -1498,6 +1521,19 @@ export const messagesFields: INodeProperties[] = [
 				type: 'number',
 				default: 1200,
 				description: 'Digite quantos milisegundos de delay a mensagem terá antes de ser enviada',
+			},
+			{
+				displayName: 'Linhas Automáticas?',
+				name: 'enableAutoRows',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to automatically generate lines from all input items (one message with multiple rows)',
+				displayOptions: {
+					show: {
+						resource: ['messages-api'],
+						operation: ['send-list'],
+					},
+				},
 			},
 			{
 				displayName: 'Menções',

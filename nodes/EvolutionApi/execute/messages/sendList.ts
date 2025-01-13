@@ -218,12 +218,13 @@ export async function sendList(this: IExecuteFunctions) {
 			},
 		};
 
-		if (!this.continueOnFail()) {
-			throw new NodeOperationError(this.getNode(), error.message, {
-				message: errorData.error.message,
-				description: errorData.error.details,
-			});
-		}
-		return [{ json: errorData, error: errorData }];
+			if (!this.continueOnFail()) {
+        throw new NodeOperationError(this.getNode(), error.message, {
+            message: errorData.error.message,
+            description: errorData.error.details,
+        });
+    }
+
+    	return [{ json: errorData, error: errorData }];
 	}
 }

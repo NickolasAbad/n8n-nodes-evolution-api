@@ -34,11 +34,6 @@ export async function sendList(ef: IExecuteFunctions) {
 			};
 		}[];
 
-		// Parâmetros para o modo automático
-		const rowTitleExp = ef.getNodeParameter('rowTitleExp', 0, '') as string;
-		const rowDescriptionExp = ef.getNodeParameter('rowDescriptionExp', 0, '') as string;
-		const rowIdExp = ef.getNodeParameter('rowIdExp', 0, '') as string;
-
 		// Opções adicionais (delay, quoted, mentions)
 		const options = ef.getNodeParameter('options_message', 0, {}) as {
 			delay?: number;
@@ -82,7 +77,7 @@ export async function sendList(ef: IExecuteFunctions) {
 
 			finalSections = [
 				{
-					title: section.title,
+					title: manualSections.title
 					rows,
 				},
 			];

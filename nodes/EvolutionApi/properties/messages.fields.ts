@@ -1480,34 +1480,6 @@ export const messagesFields: INodeProperties[] = [
 				description: 'Whether to automatically generate lines from the n8n input items, ignoring manual sections',
 			},
 			{
-				displayName: 'Responder Mensagem',
-				name: 'quoted',
-				type: 'fixedCollection',
-				typeOptions: {
-					multipleValues: false,
-				},
-				default: {
-					messageQuoted: {
-						messageId: '',
-					},
-				},
-				options: [
-					{
-						name: 'messageQuoted',
-						displayName: 'Mensagem',
-						values: [
-							{
-								displayName: 'ID Da Mensagem',
-								name: 'messageId',
-								type: 'string',
-								default: '',
-								description: 'ID da mensagem que será respondida',
-							},
-						],
-					},
-				],
-			},
-			{
 				displayName: 'Menções',
 				name: 'mentions',
 				type: 'fixedCollection',
@@ -1543,6 +1515,34 @@ export const messagesFields: INodeProperties[] = [
 									},
 								},
 								description: 'Digite os números que deseja mencionar separados por vírgula (ex: 5511999999999,5511888888888)',
+							},
+						],
+					},
+				],
+			},
+			{
+				displayName: 'Responder Mensagem',
+				name: 'quoted',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: false,
+				},
+				default: {
+					messageQuoted: {
+						messageId: '',
+					},
+				},
+				options: [
+					{
+						name: 'messageQuoted',
+						displayName: 'Mensagem',
+						values: [
+							{
+								displayName: 'ID Da Mensagem',
+								name: 'messageId',
+								type: 'string',
+								default: '',
+								description: 'ID da mensagem que será respondida',
 							},
 						],
 					},

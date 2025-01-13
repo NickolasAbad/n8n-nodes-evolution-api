@@ -64,6 +64,7 @@ export async function sendList(ef: IExecuteFunctions) {
 			for (let i = 0; i < items.length; i++) {
 				// Para cada item, lemos as expressões definidas:
 				// ex: "Produto: {{ $json.nome_produto }}"
+				const sectionTitle = ef.getNodeParameter('titleAuto', 0) as string;
 				const rowTitle = ef.getNodeParameter('rowTitleExp', i) as string;
 				const rowDescription = ef.getNodeParameter('rowDescriptionExp', i) as string;
 				const rowId = ef.getNodeParameter('rowIdExp', i) as string;
@@ -77,7 +78,7 @@ export async function sendList(ef: IExecuteFunctions) {
 
 			finalSections = [
 				{
-					title: manualSections.title
+					title: sectionTitle
 					rows,
 				},
 			];

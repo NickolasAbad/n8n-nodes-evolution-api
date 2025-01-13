@@ -6,36 +6,24 @@ import {
 } from 'n8n-workflow';
 import { evolutionRequest } from '../evolutionRequest';
 
-export async function sendList(ef: IExecuteFunctions) {
+export async function sendList(this: IExecuteFunctions) {
 	try {
 		// Todos os items que chegam ao Node
-		const items = ef.getInputData();
+		const items = this.getInputData();
 
-		// Parâmetros básicos (um só item de referência, index=0)
-		const instanceName = ef.getNodeParameter('instanceName', 0) as string;
-		const remoteJid = ef.getNodeParameter('remoteJid', 0) as string;
-		const title = ef.getNodeParameter('title', 0) as string;
-		const description = ef.getNodeParameter('description', 0) as string;
-		const buttonText = ef.getNodeParameter('buttonText', 0) as string;
-		const footerText = ef.getNodeParameter('footerText', 0) as string;
+		// Parâmetros básicos
+		const instanceName = this.getNodeParameter('instanceName', 0) as string;
+		const remoteJid = this.getNodeParameter('remoteJid', 0) as string;
+		const title = this.getNodeParameter('title', 0) as string;
+		const description = this.getNodeParameter('description', 0) as string;
+		const buttonText = this.getNodeParameter('buttonText', 0) as string;
+		const footerText = this.getNodeParameter('footerText', 0) as string;
 
-		// Modo automático ou manual?
-		const enableAutoRows = ef.getNodeParameter('enableAutoRows', 0, false) as boolean;
+		// Flag: modo automático ou manual?
+		const enableAutoRows = this.getNodeParameter('enableAutoRows', 0, false) as boolean;
 
-		// Seções manuais
-		const manualSections = ef.getNodeParameter('sections.sectionValues', 0, []) as {
-			title: string;
-			rows: {
-				rowValues: {
-					title: string;
-					description?: string;
-					rowId?: string;
-				}[];
-			};
-		}[];
-
-		// Opções adicionais (delay, quoted, mentions)
-		const options = ef.getNodeParameter('options_message', 0, {}) as {
+		// Opções adicionais (delay, mentions etc.)
+		const options = this.getNodeParameter('options_message', 0, {}) as {
 			delay?: number;
 			quoted?: {
 				messageQuoted: {
@@ -50,31 +38,66 @@ export async function sendList(ef: IExecuteFunctions) {
 			};
 		};
 
-		// Array final de seções (pode ser 1 ou várias)
+		// Array final de seções
 		let finalSections: Array<{ title: string; rows: any[] }> = [];
 
-		// =====================================================
+		// ------------------------------------------------------
 		// MODO AUTOMÁTICO
-		// =====================================================
+		// ------------------------------------------------------
 		if (enableAutoRows) {
+			// Lê a coleção "sectionsAuto"
+			const sectionsAuto = this.getNodeParameter('sectionsAuto.sectionValuesAuto', 0, []) as Array<{
+				titleAuto?: string;
+				rows?: {
+					rowValuesAuto?: Array<{
+						rowTitleExp?: string;
+						rowDescriptionExp?: string;
+						rowIdExp?: string;
+					}>;
+				};
+			}>;
 
-			// Montamos UM array de rows para TODOS os items.
-			const sectionTitle = ef.getNodeParameter('titleAuto', 0) as string;
-			const rows: any[] = [];
-
-			for (let i = 0; i < items.length; i++) {
-				// Para cada item, lemos as expressões definidas:
-				// ex: "Produto: {{ $json.nome_produto }}"
-				const rowTitle = ef.getNodeParameter('rowTitleExp', i) as string;
-				const rowDescription = ef.getNodeParameter('rowDescriptionExp', i) as string;
-				const rowId = ef.getNodeParameter('rowIdExp', i) as string;
-
-				rows.push({
-					title: rowTitle,
-					description: rowDescription,
-					rowId: rowId || `row_${i + 1}`,
-				});
+			if (!sectionsAuto.length) {
+				throw new NodeOperationError(
+					this.getNode(),
+					'Parâmetros inválidos ou ausentes: Nenhuma seção automática preenchida.'
+				);
 			}
+
+			// Pegamos a primeira "seção automática" (ou, se quiser permitir várias, faria outro loop)
+			const firstSection = sectionsAuto[0];
+			const sectionTitle = firstSection.titleAuto || 'Seção Automática';
+
+			// Pega o array de rowValuesAuto (pode estar em firstSection.rows)
+			const rowValuesAuto = firstSection.rows?.rowValuesAuto ?? [];
+			if (!rowValuesAuto.length) {
+				// Se o usuário não adicionou "Linhas (Automático)" no editor
+				throw new NodeOperationError(
+					this.getNode(),
+					'Parâmetros inválidos ou ausentes: Você deve adicionar ao menos uma configuração de linhas automáticas.'
+				);
+			}
+
+			// Normalmente, rowValuesAuto[0] conteria as EXPRESSÕES (ex. "Produto: {{ $json.nome_produto }}")
+			// Mas se você quer permitir que o usuário crie "n" blocos de expressão, 
+			// teria de decidir como combiná-los. Aqui assumo que o nodeParameter do n8n 
+			// substitui as expressões de cada item, ou que rowValuesAuto[0] é o template.
+			const { rowTitleExp, rowDescriptionExp, rowIdExp } = rowValuesAuto[0];
+
+			// Monta as rows a partir dos items do n8n
+			const rows = items.map((item, index) => {
+				// Se as expressões já foram interpoladas, rowTitleExp será uma string final.
+				// Se não, você precisaria de "evaluateExpression" ou algo similar do n8n.
+				const titleFromItem = rowTitleExp || `Item ${index + 1}`;
+				const descriptionFromItem = rowDescriptionExp || '';
+				const idFromItem = rowIdExp || `autoRow_${index + 1}`;
+
+				return {
+					title: titleFromItem,
+					description: descriptionFromItem,
+					rowId: idFromItem,
+				};
+			});
 
 			finalSections = [
 				{
@@ -82,37 +105,46 @@ export async function sendList(ef: IExecuteFunctions) {
 					rows,
 				},
 			];
+
 		} else {
-			// =====================================================
-			// MODO MANUAL (padrão antigo)
-			// =====================================================
-			if (!Array.isArray(manualSections) || manualSections.length === 0) {
-				const errorData = {
-					success: false,
-					error: {
-						message: 'Lista de seções inválida',
-						details: 'É necessário fornecer pelo menos uma seção com opções',
-						code: 'INVALID_SECTIONS',
-						timestamp: new Date().toISOString(),
-					},
+			// ------------------------------------------------------
+			// MODO MANUAL
+			// ------------------------------------------------------
+			const sectionsManual = this.getNodeParameter('sectionsManual.sectionValuesManual', 0, []) as Array<{
+				title: string;
+				rows?: {
+					rowValuesManual?: Array<{
+						title: string;
+						description?: string;
+						rowId?: string;
+					}>;
 				};
-				return { json: errorData, error: errorData };
+			}>;
+
+			if (!sectionsManual.length) {
+				throw new NodeOperationError(
+					this.getNode(),
+					'Parâmetros inválidos ou ausentes: Nenhuma seção manual preenchida.'
+				);
 			}
 
-			// Constrói as seções manualmente
-			finalSections = manualSections.map((section) => ({
-				title: section.title,
-				rows: section.rows.rowValues.map((row) => ({
-					title: row.title,
-					description: row.description || '',
-					rowId: row.rowId || `${section.title}_${row.title}`,
-				})),
-			}));
+			// Constrói a(s) seção(ões) manual(is)
+			finalSections = sectionsManual.map((section) => {
+				const rowValuesManual = section.rows?.rowValuesManual ?? [];
+				return {
+					title: section.title || 'Seção Manual',
+					rows: rowValuesManual.map((row) => ({
+						title: row.title,
+						description: row.description || '',
+						rowId: row.rowId || `${section.title}_${row.title}`,
+					})),
+				};
+			});
 		}
 
-		// =====================================================
+		// ------------------------------------------------------
 		// Monta o body final
-		// =====================================================
+		// ------------------------------------------------------
 		const body: any = {
 			number: remoteJid,
 			title,
@@ -122,6 +154,7 @@ export async function sendList(ef: IExecuteFunctions) {
 			sections: finalSections,
 		};
 
+		// Delay
 		if (options.delay) {
 			body.delay = options.delay;
 		}
@@ -145,12 +178,11 @@ export async function sendList(ef: IExecuteFunctions) {
 					.split(',')
 					.map((num) => num.trim())
 					.map((num) => (num.includes('@s.whatsapp.net') ? num : `${num}@s.whatsapp.net`));
-
 				body.mentioned = mentionedNumbers;
 			}
 		}
 
-		// Cria request
+		// Opções de requisição
 		const requestOptions: IRequestOptions = {
 			method: 'POST' as IHttpRequestMethods,
 			headers: { 'Content-Type': 'application/json' },
@@ -159,8 +191,8 @@ export async function sendList(ef: IExecuteFunctions) {
 			json: true,
 		};
 
-		// Dispara
-		const response = await evolutionRequest(ef, requestOptions);
+		// Dispara a request
+		const response = await evolutionRequest(this, requestOptions);
 
 		// Retorna UM item final com a resposta
 		return [
@@ -186,8 +218,8 @@ export async function sendList(ef: IExecuteFunctions) {
 			},
 		};
 
-		if (!ef.continueOnFail()) {
-			throw new NodeOperationError(ef.getNode(), error.message, {
+		if (!this.continueOnFail()) {
+			throw new NodeOperationError(this.getNode(), error.message, {
 				message: errorData.error.message,
 				description: errorData.error.details,
 			});

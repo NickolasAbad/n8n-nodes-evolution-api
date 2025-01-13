@@ -1401,141 +1401,152 @@ export const messagesFields: INodeProperties[] = [
 			},
 		},
 	},
+	//
+	// ----- SEÇÕES (MODO MANUAL) -----
+	//
 	{
-		displayName: 'Seções',
-		name: 'sections',
-		placeholder: 'Adicionar Seção',
-		type: 'fixedCollection',
-		typeOptions: {
-			multipleValues: true,
-		},
-		default: {},
-		options: [
-			{
-				name: 'sectionValues',
-				displayName: 'Seção',
-				values: [
-					{
-						displayName: 'Título Da Seção',
-						name: 'title',
-						type: 'string',
-						default: '',
-						displayOptions: {
-							show: {
-								enableAutoRows: [false],
-							},
-						},
-					},
-					{
-						displayName: 'Título Da Seção Automática',
-						name: 'titleAuto',
-						type: 'string',
-						default: '',
-						displayOptions: {
-							show: {
-								enableAutoRows: [true],
-							},
-						},
-					},
-					{
-						displayName: 'Linhas',
-						name: 'rows',
-						type: 'fixedCollection',
-						typeOptions: {
-							multipleValues: true,
-						},
-						default: {},
-						options: [
-							{
-								name: 'rowValues',
-								displayName: 'Linha',
-								values: [
-									{
-										displayName: 'Título Da Linha',
-										name: 'rowTitleExp',
-										type: 'string',
-										default: '',
-										description: 'Aceita expressões',
-										displayOptions: {
-											show: {
-												enableAutoRows: [true],
-											},
-										},
-									},
-									{
-										displayName: 'Descrição Da Linha',
-										name: 'rowDescriptionExp',
-										type: 'string',
-										default: '',
-										description: 'Aceita expressões',
-										displayOptions: {
-											show: {
-												enableAutoRows: [true],
-											},
-										},
-									},
-									{
-										displayName: 'ID Da Linha',
-										name: 'rowIdExp',
-										type: 'string',
-										default: '',
-										description: 'Aceita Expressões',
-										displayOptions: {
-											show: {
-												enableAutoRows: [true],
-											},
-										},
-									},
-									{
-										displayName: 'Título',
-										name: 'title',
-										type: 'string',
-										default: '',
-										required: true,
-										description: 'Título da linha',
-										displayOptions: {
-											show: {
-												enableAutoRows: [false],
-											},
-										},
-									},
-									{
-										displayName: 'Descrição',
-										name: 'description',
-										type: 'string',
-										default: '',
-										description: 'Descrição da linha (Opcional)',
-										displayOptions: {
-											show: {
-												enableAutoRows: [false],
-											},
-										},
-									},
-									{
-										displayName: 'ID Da Linha',
-										name: 'rowId',
-										type: 'string',
-										default: '',
-										description: 'ID único da opção',
-										displayOptions: {
-											show: {
-												enableAutoRows: [false],
-											},
-										},
-									}
-								]
-							}
-						]
-					}
-				]
-			}
-		],
-		displayOptions: {
-			show: {
-				resource: ['messages-api'],
-				operation: ['send-list'],
-			},
-		}
+	  displayName: 'Seções (Manual)',
+	  name: 'sectionsManual',
+	  placeholder: 'Adicionar Seção (Manual)',
+	  type: 'fixedCollection',
+	  typeOptions: {
+	    multipleValues: true,
+	  },
+	  default: {},
+	  options: [
+	    {
+	      name: 'sectionValuesManual',
+	      displayName: 'Seção (Manual)',
+	      values: [
+	        {
+	          displayName: 'Título Da Seção',
+	          name: 'title',
+	          type: 'string',
+	          default: '',
+	          description: 'Título desta seção',
+	        },
+	        {
+	          displayName: 'Linhas',
+	          name: 'rows',
+	          type: 'fixedCollection',
+	          typeOptions: {
+	            multipleValues: true,
+	          },
+	          default: {},
+	          options: [
+	            {
+	              name: 'rowValuesManual',
+	              displayName: 'Linha (Manual)',
+	              values: [
+	                {
+	                  displayName: 'Título',
+	                  name: 'title',
+	                  type: 'string',
+	                  default: '',
+	                  required: true,
+	                  description: 'Título da linha',
+	                },
+	                {
+	                  displayName: 'Descrição',
+	                  name: 'description',
+	                  type: 'string',
+	                  default: '',
+	                  description: 'Descrição da linha (Opcional)',
+	                },
+	                {
+	                  displayName: 'ID Da Linha',
+	                  name: 'rowId',
+	                  type: 'string',
+	                  default: '',
+	                  description: 'ID único da linha',
+	                },
+	              ],
+	            },
+	          ],
+	        },
+	      ],
+	    },
+	  ],
+	  displayOptions: {
+	    show: {
+	      resource: ['messages-api'],
+	      operation: ['send-list'],
+	      enableAutoRows: [false], // <-- Se MODO MANUAL, exibimos esta collection
+	    },
+	  },
+	},
+	//
+	// ----- SEÇÕES (MODO AUTOMÁTICO) -----
+	//
+	{
+	  displayName: 'Seções (Automático)',
+	  name: 'sectionsAuto',
+	  placeholder: 'Adicionar Seção (Automático)',
+	  type: 'fixedCollection',
+	  typeOptions: {
+	    multipleValues: true,
+	  },
+	  default: {},
+	  options: [
+	    {
+	      name: 'sectionValuesAuto',
+	      displayName: 'Seção (Automático)',
+	      values: [
+	        {
+	          displayName: 'Título Da Seção Automática',
+	          name: 'titleAuto',
+	          type: 'string',
+	          default: '',
+	          description: 'Título da seção quando no modo automático',
+	        },
+	        {
+	          displayName: 'Linhas (Automático)',
+	          name: 'rows',
+	          type: 'fixedCollection',
+	          typeOptions: {
+	            multipleValues: true,
+	          },
+	          default: {},
+	          options: [
+	            {
+	              name: 'rowValuesAuto',
+	              displayName: 'Linha (Automático)',
+	              values: [
+	                {
+	                  displayName: 'Título Da Linha',
+	                  name: 'rowTitleExp',
+	                  type: 'string',
+	                  default: '',
+	                  description: 'Aceita Expressões',
+	                },
+	                {
+	                  displayName: 'Descrição Da Linha',
+	                  name: 'rowDescriptionExp',
+	                  type: 'string',
+	                  default: '',
+	                  description: 'Aceita Expressões"',
+	                },
+	                {
+	                  displayName: 'ID Da Linha',
+	                  name: 'rowIdExp',
+	                  type: 'string',
+	                  default: '',
+	                  description: 'Aceita Expressões',
+	                },
+	              ],
+	            },
+	          ],
+	        },
+	      ],
+	    },
+	  ],
+	  displayOptions: {
+	    show: {
+	      resource: ['messages-api'],
+	      operation: ['send-list'],
+	      enableAutoRows: [true], // <-- Se MODO AUTOMÁTICO, exibimos esta collection
+	    },
+	  },
 	},
 	{
 		displayName: 'Opções',

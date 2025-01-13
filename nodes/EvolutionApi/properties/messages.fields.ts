@@ -1407,6 +1407,22 @@ export const messagesFields: INodeProperties[] = [
 						name: 'title',
 						type: 'string',
 						default: '',
+						displayOptions: {
+							show: {
+								enableAutoRows: [false],
+							},
+						},
+					},
+					{
+						displayName: 'Título Da Seção Automática',
+						name: 'titleAuto',
+						type: 'string',
+						default: '',
+						displayOptions: {
+							show: {
+								enableAutoRows: [true],
+							},
+						},
 					},
 					{
 						displayName: 'Linhas',
@@ -1425,7 +1441,7 @@ export const messagesFields: INodeProperties[] = [
 										displayName: 'Título da Linha',
 										name: 'rowTitleExp',
 										type: 'string',
-										default: '{{ $json.nome_produto }}',
+										default: '',
 										description: 'Use expressões do n8n. Ex: "Produto: {{ $json.nome_produto }}"',
 										displayOptions: {
 											show: {
@@ -1437,7 +1453,7 @@ export const messagesFields: INodeProperties[] = [
 										displayName: 'Descrição da Linha',
 										name: 'rowDescriptionExp',
 										type: 'string',
-										default: '{{ $json.descricao }}\n{{ $json.condicao }}',
+										default: '{',
 										description: 'Use expressões do n8n para compor a descrição. Ex: "{{ $json.descricao }}\\n{{ $json.condicao }}"',
 										displayOptions: {
 											show: {
@@ -1449,7 +1465,7 @@ export const messagesFields: INodeProperties[] = [
 										displayName: 'ID da Linha',
 										name: 'rowIdExp',
 										type: 'string',
-										default: '{{ $json.codigoProduto }}',
+										default: '',
 										description: 'Use expressões do n8n. Ex: "{{ $json.codigoProduto }}"',
 										displayOptions: {
 											show: {

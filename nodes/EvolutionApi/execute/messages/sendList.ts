@@ -6,31 +6,24 @@ import {
 } from 'n8n-workflow';
 import { evolutionRequest } from '../evolutionRequest';
 
-export async function sendList(this: IExecuteFunctions) {
+export async function sendList(ef: IExecuteFunctions) {
 	try {
-		// Lê todos os itens de entrada do node
-		const items = this.getInputData();
+		// Todos os items que chegam ao Node
+		const items = ef.getInputData();
 
-		// Lê parâmetros principais (do primeiro item)
-		const instanceName = this.getNodeParameter('instanceName', 0) as string;
-		const remoteJid = this.getNodeParameter('remoteJid', 0) as string;
-		const title = this.getNodeParameter('title', 0) as string;
-		const description = this.getNodeParameter('description', 0) as string;
-		const buttonText = this.getNodeParameter('buttonText', 0) as string;
+		// Parâmetros básicos (um só item de referência, index=0)
+		const instanceName = ef.getNodeParameter('instanceName', 0) as string;
+		const remoteJid = ef.getNodeParameter('remoteJid', 0) as string;
+		const title = ef.getNodeParameter('title', 0) as string;
+		const description = ef.getNodeParameter('description', 0) as string;
+		const buttonText = ef.getNodeParameter('buttonText', 0) as string;
+		const footerText = ef.getNodeParameter('footerText', 0) as string;
 
-		/**
-		 * Lê o parâmetro que habilita/desabilita a criação automática de rows.
-		 * Exemplo: checkbox "Habilitar criação automática de itens?" -> `enableAutoRows`
-		 * Lê também um "sectionTitle" que o usuário define quando `enableAutoRows` for true.
-		 */
-		const enableAutoRows = this.getNodeParameter('enableAutoRows', 0, false) as boolean;
-		const dynamicSectionTitle = this.getNodeParameter('dynamicSectionTitle', 0, '') as string;
+		// Modo automático ou manual?
+		const enableAutoRows = ef.getNodeParameter('enableAutoRows', 0, false) as boolean;
 
-		/**
-		 * Parâmetro "sections" que já existia na configuração anterior,
-		 * pois se o usuário NÃO habilitar o modo automático, iremos usar essas sections
-		 */
-		const manualSections = this.getNodeParameter('sections.sectionValues', 0, []) as {
+		// Seções manuais
+		const manualSections = ef.getNodeParameter('sections.sectionValues', 0, []) as {
 			title: string;
 			rows: {
 				rowValues: {
@@ -41,9 +34,13 @@ export async function sendList(this: IExecuteFunctions) {
 			};
 		}[];
 
-		// Opções adicionais (footer, delay, quoted, mentions etc.)
-		const options = this.getNodeParameter('options_message', 0, {}) as {
-			footer?: string;
+		// Parâmetros para o modo automático
+		const rowTitleExp = ef.getNodeParameter('rowTitleExp', 0, '') as string;
+		const rowDescriptionExp = ef.getNodeParameter('rowDescriptionExp', 0, '') as string;
+		const rowIdExp = ef.getNodeParameter('rowIdExp', 0, '') as string;
+
+		// Opções adicionais (delay, quoted, mentions)
+		const options = ef.getNodeParameter('options_message', 0, {}) as {
 			delay?: number;
 			quoted?: {
 				messageQuoted: {
@@ -58,20 +55,42 @@ export async function sendList(this: IExecuteFunctions) {
 			};
 		};
 
-		/**
-		 * Aqui vem a lógica condicional:
-		 * - Se o usuário não habilitou o modo automático (enableAutoRows === false),
-		 *   usa as seções manuais (manualSections) que já existiam antes.
-		 * - Se o usuário habilitou o modo automático, gera as rows dinamicamente.
-		 */
-		let sectionsToUse: any[] = []; // array que iremos atribuir ao body.sections
+		// Array final de seções (pode ser 1 ou várias)
+		let finalSections: Array<{ title: string; rows: any[] }> = [];
 
-		if (!enableAutoRows) {
-			//
-			// ===== LÓGICA TRADICIONAL (MODO ANTIGO) =====
-			//
+		// =====================================================
+		// MODO AUTOMÁTICO
+		// =====================================================
+		if (enableAutoRows) {
+
+			// Montamos UM array de rows para TODOS os items.
+			const rows: any[] = [];
+
+			for (let i = 0; i < items.length; i++) {
+				// Para cada item, lemos as expressões definidas:
+				// ex: "Produto: {{ $json.nome_produto }}"
+				const rowTitle = ef.getNodeParameter('rowTitleExp', i) as string;
+				const rowDescription = ef.getNodeParameter('rowDescriptionExp', i) as string;
+				const rowId = ef.getNodeParameter('rowIdExp', i) as string;
+
+				rows.push({
+					title: rowTitle,
+					description: rowDescription,
+					rowId: rowId || `row_${i + 1}`,
+				});
+			}
+
+			finalSections = [
+				{
+					title: section.title,
+					rows,
+				},
+			];
+		} else {
+			// =====================================================
+			// MODO MANUAL (padrão antigo)
+			// =====================================================
 			if (!Array.isArray(manualSections) || manualSections.length === 0) {
-				// Se o usuário não preencheu a sections manual, retorna erro ou algo do tipo
 				const errorData = {
 					success: false,
 					error: {
@@ -81,13 +100,11 @@ export async function sendList(this: IExecuteFunctions) {
 						timestamp: new Date().toISOString(),
 					},
 				};
-				return {
-					json: errorData,
-					error: errorData,
-				};
+				return { json: errorData, error: errorData };
 			}
 
-			sectionsToUse = manualSections.map((section) => ({
+			// Constrói as seções manualmente
+			finalSections = manualSections.map((section) => ({
 				title: section.title,
 				rows: section.rows.rowValues.map((row) => ({
 					title: row.title,
@@ -95,51 +112,25 @@ export async function sendList(this: IExecuteFunctions) {
 					rowId: row.rowId || `${section.title}_${row.title}`,
 				})),
 			}));
-
-		} else {
-			//
-			// ===== NOVA LÓGICA (MODO AUTOMÁTICO) =====
-			//
-			// Gera uma única seção (ou mais, se você quiser) com base nos items
-			const rowsFromItems = items.map((item, index) => {
-				// Exemplo: o usuário poderia inserir no item.json { "rowTitle": "Foo", "rowDescription": "Bar" }
-				return {
-					title: item.json?.rowTitle ?? `Item ${index + 1}`,
-					description: item.json?.rowDescription ?? '',
-					rowId: item.json?.rowId ?? `row_${index + 1}`,
-				};
-			});
-
-			// "dynamicSectionTitle" é preenchido pelo usuário quando enableAutoRows=true
-			if (!dynamicSectionTitle) {
-				throw new NodeOperationError(
-					this.getNode(),
-					'É necessário preencher um título para a seção em modo automático.'
-				);
-			}
-
-			sectionsToUse = [
-				{
-					title: dynamicSectionTitle,
-					rows: rowsFromItems,
-				},
-			];
 		}
 
-		// Monta o body da request
+		// =====================================================
+		// Monta o body final
+		// =====================================================
 		const body: any = {
 			number: remoteJid,
 			title,
 			description,
 			buttonText,
-			footerText: options.footer || '',
-			sections: sectionsToUse,
+			footerText,
+			sections: finalSections,
 		};
 
 		if (options.delay) {
 			body.delay = options.delay;
 		}
 
+		// Quoted message
 		if (options.quoted?.messageQuoted?.messageId) {
 			body.quoted = {
 				key: {
@@ -148,9 +139,9 @@ export async function sendList(this: IExecuteFunctions) {
 			};
 		}
 
+		// Mentions
 		if (options.mentions?.mentionsSettings) {
 			const { mentionsEveryOne, mentioned } = options.mentions.mentionsSettings;
-
 			if (mentionsEveryOne) {
 				body.mentionsEveryOne = true;
 			} else if (mentioned) {
@@ -163,29 +154,27 @@ export async function sendList(this: IExecuteFunctions) {
 			}
 		}
 
+		// Cria request
 		const requestOptions: IRequestOptions = {
 			method: 'POST' as IHttpRequestMethods,
-			headers: {
-				'Content-Type': 'application/json',
-			},
+			headers: { 'Content-Type': 'application/json' },
 			uri: `/message/sendList/${instanceName}`,
 			body,
 			json: true,
 		};
 
-		// Dispara a requisição
-		const response = await evolutionRequest(this, requestOptions);
+		// Dispara
+		const response = await evolutionRequest(ef, requestOptions);
 
-		// Retorna o resultado para cada item (ou só 1, a seu critério)
-		return this.prepareOutputData(
-			items.map(() => ({
+		// Retorna UM item final com a resposta
+		return [
+			{
 				json: {
 					success: true,
 					data: response,
 				},
-			}))
-		);
-
+			},
+		];
 	} catch (error) {
 		const errorData = {
 			success: false,
@@ -201,17 +190,12 @@ export async function sendList(this: IExecuteFunctions) {
 			},
 		};
 
-		if (!this.continueOnFail()) {
-			throw new NodeOperationError(this.getNode(), error.message, {
+		if (!ef.continueOnFail()) {
+			throw new NodeOperationError(ef.getNode(), error.message, {
 				message: errorData.error.message,
 				description: errorData.error.details,
 			});
 		}
-
-		return this.prepareOutputData(
-			this.getInputData().map(() => ({
-				json: errorData,
-			}))
-		);
+		return [{ json: errorData, error: errorData }];
 	}
 }

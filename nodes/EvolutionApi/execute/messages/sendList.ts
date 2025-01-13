@@ -86,16 +86,20 @@ export async function sendList(ef: IExecuteFunctions) {
 
 			// Monta as rows a partir dos items do n8n
 			const rows = items.map((item, index) => {
-				// Se as expressões já foram interpoladas, rowTitleExp será uma string final.
-				// Se não, você precisaria de "evaluateExpression" ou algo similar do n8n.
 				const titleFromItem = rowTitleExp || `Item ${index + 1}`;
 				const descriptionFromItem = rowDescriptionExp || '';
-				const idFromItem = rowIdExp || `autoRow_${index + 1}`;
-
+				
+				// Gera um fallback *único* para rowId e garante ser string
+				const fallbackId = `autoRow_${index + 1}_${Date.now()}`;
+				const rawIdValue = rowIdExp || fallbackId; 
+				// Exemplo: Se rowIdExp estiver vazio, cria algo tipo "autoRow_1_1691252262003"
+			
+				const rowIdAsString = String(rawIdValue); // força string
+			
 				return {
-					title: titleFromItem,
-					description: descriptionFromItem,
-					rowId: idFromItem,
+					title: String(titleFromItem),
+					description: String(descriptionFromItem),
+					rowId: rowIdAsString,
 				};
 			});
 

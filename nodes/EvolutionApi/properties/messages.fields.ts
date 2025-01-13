@@ -1389,6 +1389,33 @@ export const messagesFields: INodeProperties[] = [
 		},
 	},
 	{
+    displayName: 'Título Da Seção (Automática)',
+    name: 'dynamicSectionTitle',
+    type: 'string',
+    default: '',
+    description: 'Título da seção quando a criação automática de linhas estiver habilitada',
+    displayOptions: {
+      show: {
+        resource: ['messages-api'],
+        operation: ['send-list'],
+        enableAutoRows: [true],
+      },
+    },
+  },
+	{
+    displayName: 'Linhas Automáticas?',
+    name: 'enableAutoRows',
+    type: 'boolean',
+    default: false,
+    description: 'Whether to activate automatic mode - Gera linhas automaticamente a partir dos items de entrada do n8n, ignorando as seções manuais',
+    displayOptions: {
+      show: {
+        resource: ['messages-api'],
+        operation: ['send-list'],
+      },
+    },
+  },
+	{
 		displayName: 'Seções',
 		name: 'sections',
 		placeholder: 'Adicionar Seção',

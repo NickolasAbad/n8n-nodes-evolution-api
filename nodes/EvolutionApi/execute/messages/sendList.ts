@@ -52,7 +52,6 @@ export async function sendList(ef: IExecuteFunctions) {
 					rowValuesAuto?: Array<{
 						rowTitleExp?: string;
 						rowDescriptionExp?: string;
-						rowIdExp?: string;
 					}>;
 				};
 			}>;
@@ -78,29 +77,22 @@ export async function sendList(ef: IExecuteFunctions) {
 				);
 			}
 
-			// Normalmente, rowValuesAuto[0] conteria as EXPRESSÕES (ex. "Produto: {{ $json.nome_produto }}")
-			// Mas se você quer permitir que o usuário crie "n" blocos de expressão, 
-			// teria de decidir como combiná-los. Aqui assumo que o nodeParameter do n8n 
-			// substitui as expressões de cada item, ou que rowValuesAuto[0] é o template.
-			const { rowTitleExp, rowDescriptionExp, rowIdExp } = rowValuesAuto[0];
-
-			// Monta as rows a partir dos items do n8n
-			const rows = items.map((item, index) => {
-				const titleFromItem = rowTitleExp || `Item ${index + 1}`;
-				const descriptionFromItem = rowDescriptionExp || '';
-				
-				// Gera um fallback *único* para rowId e garante ser string
-				const fallbackId = `autoRow_${index + 1}_${Date.now()}`;
-				const rawIdValue = rowIdExp || fallbackId; 
-				// Exemplo: Se rowIdExp estiver vazio, cria algo tipo "autoRow_1_1691252262003"
+			const rows = items.map((item, i) => {
+			   // "sectionsAuto.sectionValuesAuto[0]" se você tem só 1 seção automática
+			   // e "rows.rowValuesAuto[0]" se você quer pegar só um bloco de expressões
+			   // Ajuste esse caminho conforme seu node description
+			   const rowTitleExp  = ef.getNodeParameter('sectionsAuto.sectionValuesAuto[0].rows.rowValuesAuto[0].rowTitleExp',  i) as string;
+			   const rowDescExp   = ef.getNodeParameter('sectionsAuto.sectionValuesAuto[0].rows.rowValuesAuto[0].rowDescriptionExp', i) as string;
 			
-				const rowIdAsString = String(rawIdValue); // força string
+			   // fallback para caso esteja vazio e forçar string + unicidade
+			   const fallbackId   = `autoRow_${i + 1}_${Date.now()}`;
+			   const rowIdAsString = String(fallbackId);
 			
-				return {
-					title: String(titleFromItem),
-					description: String(descriptionFromItem),
-					rowId: rowIdAsString,
-				};
+			   return {
+			       title: String(rowTitleExp || `Item ${i + 1}`),
+			       description: String(rowDescExp || ''),
+			       rowId: rowIdAsString,
+			   };
 			});
 
 			finalSections = [

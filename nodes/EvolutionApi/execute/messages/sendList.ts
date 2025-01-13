@@ -6,23 +6,24 @@ import {
 } from 'n8n-workflow';
 import { evolutionRequest } from '../evolutionRequest';
 
-export async function sendList(this: IExecuteFunctions) {
+export async function sendList(ef: IExecuteFunctions) {
+	try {
 		// Todos os items que chegam ao Node
-		const items = this.getInputData();
+		const items = ef.getInputData();
 
 		// Parâmetros básicos
-		const instanceName = this.getNodeParameter('instanceName', 0) as string;
-		const remoteJid = this.getNodeParameter('remoteJid', 0) as string;
-		const title = this.getNodeParameter('title', 0) as string;
-		const description = this.getNodeParameter('description', 0) as string;
-		const buttonText = this.getNodeParameter('buttonText', 0) as string;
-		const footerText = this.getNodeParameter('footerText', 0) as string;
+		const instanceName = ef.getNodeParameter('instanceName', 0) as string;
+		const remoteJid = ef.getNodeParameter('remoteJid', 0) as string;
+		const title = ef.getNodeParameter('title', 0) as string;
+		const description = ef.getNodeParameter('description', 0) as string;
+		const buttonText = ef.getNodeParameter('buttonText', 0) as string;
+		const footerText = ef.getNodeParameter('footerText', 0) as string;
 
 		// Flag: modo automático ou manual?
-		const enableAutoRows = this.getNodeParameter('enableAutoRows', 0, false) as boolean;
+		const enableAutoRows = ef.getNodeParameter('enableAutoRows', 0, false) as boolean;
 
 		// Opções adicionais (delay, mentions etc.)
-		const options = this.getNodeParameter('options_message', 0, {}) as {
+		const options = ef.getNodeParameter('options_message', 0, {}) as {
 			delay?: number;
 			quoted?: {
 				messageQuoted: {
@@ -45,7 +46,7 @@ export async function sendList(this: IExecuteFunctions) {
 		// ------------------------------------------------------
 		if (enableAutoRows) {
 			// Lê a coleção "sectionsAuto"
-			const sectionsAuto = this.getNodeParameter('sectionsAuto.sectionValuesAuto', 0, []) as Array<{
+			const sectionsAuto = ef.getNodeParameter('sectionsAuto.sectionValuesAuto', 0, []) as Array<{
 				titleAuto?: string;
 				rows?: {
 					rowValuesAuto?: Array<{
@@ -58,7 +59,7 @@ export async function sendList(this: IExecuteFunctions) {
 
 			if (!sectionsAuto.length) {
 				throw new NodeOperationError(
-					this.getNode(),
+					ef.getNode(),
 					'Parâmetros inválidos ou ausentes: Nenhuma seção automática preenchida.'
 				);
 			}
@@ -72,7 +73,7 @@ export async function sendList(this: IExecuteFunctions) {
 			if (!rowValuesAuto.length) {
 				// Se o usuário não adicionou "Linhas (Automático)" no editor
 				throw new NodeOperationError(
-					this.getNode(),
+					ef.getNode(),
 					'Parâmetros inválidos ou ausentes: Você deve adicionar ao menos uma configuração de linhas automáticas.'
 				);
 			}
@@ -109,7 +110,7 @@ export async function sendList(this: IExecuteFunctions) {
 			// ------------------------------------------------------
 			// MODO MANUAL
 			// ------------------------------------------------------
-			const sectionsManual = this.getNodeParameter('sectionsManual.sectionValuesManual', 0, []) as Array<{
+			const sectionsManual = ef.getNodeParameter('sectionsManual.sectionValuesManual', 0, []) as Array<{
 				title: string;
 				rows?: {
 					rowValuesManual?: Array<{
@@ -122,7 +123,7 @@ export async function sendList(this: IExecuteFunctions) {
 
 			if (!sectionsManual.length) {
 				throw new NodeOperationError(
-					this.getNode(),
+					ef.getNode(),
 					'Parâmetros inválidos ou ausentes: Nenhuma seção manual preenchida.'
 				);
 			}
@@ -191,7 +192,7 @@ export async function sendList(this: IExecuteFunctions) {
 		};
 
 		// Dispara a request
-		const response = await evolutionRequest(this, requestOptions);
+		const response = await evolutionRequest(ef, requestOptions);
 
 		// Retorna UM item final com a resposta
 		return [
@@ -202,4 +203,19 @@ export async function sendList(this: IExecuteFunctions) {
 				},
 			},
 		];
+	} catch (error) {
+    const errorData = {
+        success: false,
+        error: { ... },
+    };
+
+    if (!ef.continueOnFail()) {
+        throw new NodeOperationError(ef.getNode(), error.message, {
+            message: errorData.error.message,
+            description: errorData.error.details,
+        });
+    }
+
+    return [{ json: errorData, error: errorData }];
+	}
 }

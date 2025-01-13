@@ -1473,6 +1473,19 @@ export const messagesFields: INodeProperties[] = [
 				description: 'Digite quantos milisegundos de delay a mensagem terá antes de ser enviada',
 			},
 			{
+				displayName: 'Linhas Automáticas?',
+				name: 'enableAutoRows',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to automatically generate lines from the n8n input items.',
+				displayOptions: {
+					show: {
+						resource: ['messages-api'],
+						operation: ['send-list'],
+					},
+				},
+			},
+			{
 				displayName: 'Responder Mensagem',
 				name: 'quoted',
 				type: 'fixedCollection',

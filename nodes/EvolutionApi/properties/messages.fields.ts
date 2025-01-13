@@ -1388,6 +1388,19 @@ export const messagesFields: INodeProperties[] = [
 			},
 		},
 	},
+	{	
+		displayName: 'Linhas Automáticas?',
+		name: 'enableAutoRows',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to automatically generate lines from all input items (one message with multiple rows)',
+		displayOptions: {
+			show: {
+				resource: ['messages-api'],
+				operation: ['send-list'],
+			},
+		},
+	},
 	{
 		displayName: 'Seções',
 		name: 'sections',
@@ -1398,19 +1411,6 @@ export const messagesFields: INodeProperties[] = [
 		},
 		default: {},
 		options: [
-			{
-				displayName: 'Linhas Automáticas?',
-				name: 'enableAutoRows',
-				type: 'boolean',
-				default: false,
-				description: 'Whether to automatically generate lines from all input items (one message with multiple rows)',
-				displayOptions: {
-					show: {
-						resource: ['messages-api'],
-						operation: ['send-list'],
-					},
-				},
-			},
 			{
 				name: 'sectionValues',
 				displayName: 'Seção',

@@ -215,19 +215,6 @@ export const messagesFields: INodeProperties[] = [
 				description: 'Digite quantos milisegundos de delay a mensagem terá antes de ser enviada',
 			},
 			{
-				displayName: 'Linhas Automáticas?',
-				name: 'enableAutoRows',
-				type: 'boolean',
-				default: false,
-				description: 'Whether to automatically generate lines from the n8n input items, ignoring manual sections',
-				displayOptions: {
-					show: {
-						resource: ['messages-api'],
-						operation: ['send-list'],
-					},
-				},
-			},
-			{
 				displayName: 'Menções',
 				name: 'mentions',
 				type: 'fixedCollection',
@@ -295,21 +282,6 @@ export const messagesFields: INodeProperties[] = [
 						],
 					},
 				],
-			},
-			{
-				displayName: 'Título Da Seção (Automática)',
-				name: 'dynamicSectionTitle',
-				type: 'string',
-				default: '',
-				description: 'Título da seção quando a criação automática de linhas estiver habilitada',
-				// Só aparecerá se "enableAutoRows" for "true"
-				displayOptions: {
-					show: {
-						resource: ['messages-api'],
-						operation: ['send-list'],
-						enableAutoRows: [true],
-					},
-				},
 			},
 		],
 		displayOptions: {
@@ -1501,6 +1473,13 @@ export const messagesFields: INodeProperties[] = [
 				description: 'Digite quantos milisegundos de delay a mensagem terá antes de ser enviada',
 			},
 			{
+				displayName: 'Linhas Automáticas?',
+				name: 'enableAutoRows',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to automatically generate lines from the n8n input items, ignoring manual sections',
+			},
+			{
 				displayName: 'Responder Mensagem',
 				name: 'quoted',
 				type: 'fixedCollection',
@@ -1568,6 +1547,13 @@ export const messagesFields: INodeProperties[] = [
 						],
 					},
 				],
+			},
+			{
+				displayName: 'Título Da Seção (Automática)',
+				name: 'dynamicSectionTitle',
+				type: 'string',
+				default: '',
+				description: 'Título da seção quando a criação automática de linhas estiver habilitada',
 			},
 		],
 		displayOptions: {

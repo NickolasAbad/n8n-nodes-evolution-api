@@ -7,7 +7,6 @@ import {
 import { evolutionRequest } from '../evolutionRequest';
 
 export async function sendList(this: IExecuteFunctions) {
-	try {
 		// Todos os items que chegam ao Node
 		const items = this.getInputData();
 
@@ -203,28 +202,4 @@ export async function sendList(this: IExecuteFunctions) {
 				},
 			},
 		];
-	} catch (error) {
-		const errorData = {
-			success: false,
-			error: {
-				message: error.message.includes('Could not get parameter')
-					? 'Parâmetros inválidos ou ausentes'
-					: 'Erro ao enviar lista',
-				details: error.message.includes('Could not get parameter')
-					? 'Verifique se todos os campos obrigatórios foram preenchidos corretamente'
-					: error.message,
-				code: error.code || 'UNKNOWN_ERROR',
-				timestamp: new Date().toISOString(),
-			},
-		};
-
-			if (!this.continueOnFail()) {
-        throw new NodeOperationError(this.getNode(), error.message, {
-            message: errorData.error.message,
-            description: errorData.error.details,
-        });
-    }
-
-    	return [{ json: errorData, error: errorData }];
-	}
 }

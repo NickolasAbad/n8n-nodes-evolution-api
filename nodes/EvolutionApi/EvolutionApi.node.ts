@@ -8,17 +8,17 @@ import {
 import { evolutionNodeProperties } from './properties';
 import { resourceOperationsFunctions } from './execute';
 
-export class EvolutionApiV2 implements INodeType {
+export class EvolutionApi implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Evolution API v2',
-		name: 'evolutionApiDois',
+		name: 'evolutionApi',
 		icon: 'file:evolutionapi.svg',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
 		description: 'Interact with Evolution API v2',
 		defaults: {
-			name: 'Evolution API v2',
+			name: 'Evolution API',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
